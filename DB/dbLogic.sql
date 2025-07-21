@@ -1,5 +1,7 @@
 USE `2024_TU_Lab1`; #TODO: Change Schema
 
+
+
 # This will be executed, when camera scans car before entering the parking
 DELIMITER $$
 CREATE PROCEDURE IF NOT EXISTS car_entry(IN plate VARCHAR(15))
@@ -24,10 +26,11 @@ BEGIN
 END$$
 
 DELIMITER ;
-#CALL car_entry('PB3333BB');
+
+
+
 
 #This will execute when car tries to leave the parking
-
 DELIMITER $$
 CREATE PROCEDURE car_exit(IN plate VARCHAR(15))
 BEGIN
@@ -47,11 +50,10 @@ BEGIN
 END$$
 DELIMITER ;
 
-CALL car_exit('PA4444PA');
+
+
 
 #This procedure calculates end_of_payment on the basis of time_of_payment and paid (how many days he has paid for)
-
-
 DELIMITER $$
 CREATE PROCEDURE update_payment(
     IN plate VARCHAR(15),
@@ -70,6 +72,41 @@ BEGIN
 
     SELECT 'Плащането е регистрирано успешно' AS message;
 END$$
+DELIMITER ;
+
+
+
+#This executes, when end_of_payment passes and we presume the person will not return
+DELIMITER $$
+
+CREATE PROCEDURE cleanup_cars()
+BEGIN
+    -- Изтриване на коли, за които е минал крайният срок на престой
+    DELETE FROM cars
+    WHERE end_of_payment < NOW();
+
+    SELECT 'Изчистени са излезлите коли от базата.' AS message;
+END$$
 
 DELIMITER ;
-CALL update_payment('PA4444PA', 4);
+
+
+########EVENT FOR CLEANING UP CARS##########
+-- Създаване на ежедневен event
+CREATE EVENT IF NOT EXISTS daily_cleanup
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+  CALL cleanup_cars();
+############################################
+
+
+
+###########Calls For Debugging#############
+
+CALL car_entry('TX0761XT');
+CALL car_exit('TX0761XT');
+CALL update_payment('TX0761XT',5);
+CALL cleanup_cars();
+SELECT * FROM cars;
+TRUNCATE cars;
