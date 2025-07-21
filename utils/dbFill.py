@@ -15,19 +15,16 @@ def generate_sample_cars(n=50):
 
         today = datetime(2025, 7, 21)
 
-        # Генерирай време на влизане – произволно до 10 дни назад
         entry_time = today - timedelta(days=random.randint(0, 10), hours=random.randint(0, 23), minutes=random.randint(0, 59))
 
         if i < n // 3:
-            # Коли с изтекло време
             payment_date = entry_time - timedelta(days=random.randint(5, 10))
-            end_date = payment_date + timedelta(days=random.randint(1, 3))  # Изтекло преди днешна дата
+            end_date = payment_date + timedelta(days=random.randint(1, 3))  
             cursor.execute(
                 "INSERT INTO cars (license_plate, entry_time, time_of_payment, end_of_payment) VALUES (%s, %s, %s, %s)",
                 (plate_number, entry_time, payment_date, end_date)
             )
         elif i < (2 * n) // 3:
-            # Платени коли с активна регистрация
             payment_date = entry_time
             end_date = payment_date + timedelta(days=random.randint(5, 20))
             cursor.execute(
@@ -35,7 +32,6 @@ def generate_sample_cars(n=50):
                 (plate_number, entry_time, payment_date, end_date)
             )
         else:
-            # Неплатени коли
             cursor.execute(
                 "INSERT INTO cars (license_plate, entry_time, time_of_payment, end_of_payment) VALUES (%s, %s, NULL, NULL)",
                 (plate_number, entry_time)
