@@ -1,4 +1,3 @@
-# main.py
 import sys
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
@@ -73,7 +72,6 @@ class MainWindow(QWidget):
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
 
-        # Лява страна
         self.left_layout = QVBoxLayout()
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Търси по регистрационен номер...")
@@ -87,7 +85,6 @@ class MainWindow(QWidget):
         self.left_layout.addWidget(self.search_bar)
         self.left_layout.addWidget(self.table)
 
-        # Дясна страна
         self.right_layout = QVBoxLayout()
         self.edit_button = QPushButton("Обработка")
         self.pay_button = QPushButton("Плащане")
