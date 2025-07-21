@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QLabel, QDialog, QSpinBox, QDialogButtonBox
 )
 from datetime import datetime, timedelta
+from utils.dbConnection import get_connection
 
 
 class PaymentDialog(QDialog):
@@ -69,11 +70,19 @@ class MainWindow(QWidget):
         self.load_data()
 
     def load_data(self):
-        # Засега използваме фалшиви данни
-        self.data = [
-            {"id": 1, "plate": "CA1234AB", "payment_date": "2025-07-20", "end_date": "2025-07-25"},
-            {"id": 2, "plate": "CB5678CD", "payment_date": "2025-07-18", "end_date": "2025-07-21"},
-        ]
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT 
+                id,
+                license_plate AS plate,
+                time_of_payment AS date_of_payment,
+                end_of_payment
+            FROM cars
+        """)
+        self.data = cursor.fetchall()
+        cursor.close()
+        conn.close()
         self.refresh_table(self.data)
 
     def refresh_table(self, data):
@@ -83,8 +92,8 @@ class MainWindow(QWidget):
             self.table.insertRow(row_position)
             self.table.setItem(row_position, 0, QTableWidgetItem(str(row_data["id"])))
             self.table.setItem(row_position, 1, QTableWidgetItem(row_data["plate"]))
-            self.table.setItem(row_position, 2, QTableWidgetItem(row_data["payment_date"]))
-            self.table.setItem(row_position, 3, QTableWidgetItem(row_data["end_date"]))
+            self.table.setItem(row_position, 2, QTableWidgetItem(str(row_data["date_of_payment"])))
+            self.table.setItem(row_position, 3, QTableWidgetItem(str(row_data["end_of_payment"])))
 
     def filter_table(self):
         text = self.search_bar.text().lower()
@@ -112,10 +121,18 @@ class MainWindow(QWidget):
             dialog = PaymentDialog(car["id"])
             if dialog.exec():
                 days = dialog.days_input.value()
-                new_end_date = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
-                car["payment_date"] = datetime.now().strftime("%Y-%m-%d")
-                car["end_date"] = new_end_date
-                self.refresh_table(self.data)
+                conn = get_connection()
+                cursor = conn.cursor()
+                now = datetime.now().strftime("%Y-%m-%d")
+                end = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+                cursor.execute(
+                    "UPDATE cars SET time_of_payment = %s, end_of_payment = %s WHERE id = %s",
+                    (now, end, car["id"])
+                )
+                conn.commit()
+                cursor.close()
+                conn.close()
+                self.load_data()
 
 
 if __name__ == "__main__":

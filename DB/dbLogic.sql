@@ -110,3 +110,5 @@ CALL update_payment('TX0761XT',5);
 CALL cleanup_cars();
 SELECT * FROM cars;
 TRUNCATE cars;
+
+DESCRIBE cars;
