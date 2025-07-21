@@ -60,7 +60,6 @@ CREATE PROCEDURE update_payment(
     IN days_paid INT
 )
 BEGIN
-    -- Обновява последния запис на тази кола с ново време на плащане и край на плащане
     UPDATE cars
     SET
         time_of_payment = NOW(),
@@ -81,7 +80,6 @@ DELIMITER $$
 
 CREATE PROCEDURE cleanup_cars()
 BEGIN
-    -- Изтриване на коли, за които е минал крайният срок на престой
     DELETE FROM cars
     WHERE end_of_payment < NOW();
 
@@ -92,7 +90,6 @@ DELIMITER ;
 
 
 ########EVENT FOR CLEANING UP CARS##########
--- Създаване на ежедневен event
 CREATE EVENT IF NOT EXISTS daily_cleanup
 ON SCHEDULE EVERY 1 DAY
 STARTS CURRENT_TIMESTAMP
@@ -107,8 +104,8 @@ DO
 #CALL car_entry('TX0761XT');
 #CALL car_exit('TX0761XT');
 #CALL update_payment('TX0761XT',5);
-CALL cleanup_cars();
-SELECT * FROM cars;
-TRUNCATE cars;
+#CALL cleanup_cars();
+#SELECT * FROM cars;
+#TRUNCATE cars;
 
 #DESCRIBE cars;
