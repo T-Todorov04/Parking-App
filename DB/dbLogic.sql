@@ -1,4 +1,4 @@
-USE `2024_TU_Lab1`; #TODO: Change Schema
+USE `parkingCarsDB`;
 
 
 
@@ -104,11 +104,11 @@ DO
 
 ###########Calls For Debugging#############
 
-CALL car_entry('TX0761XT');
-CALL car_exit('TX0761XT');
-CALL update_payment('TX0761XT',5);
+#CALL car_entry('TX0761XT');
+#CALL car_exit('TX0761XT');
+#CALL update_payment('TX0761XT',5);
 CALL cleanup_cars();
 SELECT * FROM cars;
 TRUNCATE cars;
 
-DESCRIBE cars;
+#DESCRIBE cars;

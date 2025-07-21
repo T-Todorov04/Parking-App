@@ -6,5 +6,5 @@ def get_connection():
         host="localhost",
         user="root",  # смени ако е различен
         password="T31102004",  # смени с твоята
-        database="2024_TU_Lab1"  # или каквато е твоята база
+        database="parkingCarsDB"  # или каквато е твоята база
     )

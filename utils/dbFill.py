@@ -8,22 +8,37 @@ def generate_sample_cars(n=50):
 
     for i in range(n):
         plate_prefix = random.choice([
-            'A ', 'B ', 'BH', 'BP', 'BT', 'C ', 'CA', 'CB', 'CC', 'CH', 'CO', 'CT', 'E ', 'EB', 'EH', 'H ', 'KH', 'M ', 'E ', 'OB', 'P ', 'PA', 'PB', 'PE', 'PK', 'PP', 'T ', 'TX'])
-        plate_number = f"{plate_prefix}{random.randint(1000, 9999)}{random.choice(['AB', 'AC', 'BA', 'BB'])}"
+            'A ', 'B ', 'BH', 'BP', 'BT', 'C ', 'CA', 'CB', 'CC', 'CH', 'CO', 'CT',
+            'E ', 'EB', 'EH', 'H ', 'KH', 'M ', 'OB', 'P ', 'PA', 'PB', 'PE', 'PK', 'PP', 'T ', 'TX'
+        ])
+        plate_number = f"{plate_prefix}{random.randint(1000, 9999)}{random.choice(['BH', 'BP', 'BT', 'CA', 'CB', 'CC', 'CH', 'CO', 'CT', 'EB', 'EH', 'KH', 'OB', 'PA', 'PB', 'PE', 'PK', 'PP', 'TX'])}"
 
-        if i < n // 2:
-            # платени коли
-            start_date = datetime(2025, 7, random.randint(1, 15))
-            end_date = start_date + timedelta(days=random.randint(5, 20))
+        today = datetime(2025, 7, 21)
+
+        # Генерирай време на влизане – произволно до 10 дни назад
+        entry_time = today - timedelta(days=random.randint(0, 10), hours=random.randint(0, 23), minutes=random.randint(0, 59))
+
+        if i < n // 3:
+            # Коли с изтекло време
+            payment_date = entry_time - timedelta(days=random.randint(5, 10))
+            end_date = payment_date + timedelta(days=random.randint(1, 3))  # Изтекло преди днешна дата
             cursor.execute(
-                "INSERT INTO cars (license_plate, time_of_payment, end_of_payment) VALUES (%s, %s, %s)",
-                (plate_number, start_date.date(), end_date.date())
+                "INSERT INTO cars (license_plate, entry_time, time_of_payment, end_of_payment) VALUES (%s, %s, %s, %s)",
+                (plate_number, entry_time, payment_date, end_date)
+            )
+        elif i < (2 * n) // 3:
+            # Платени коли с активна регистрация
+            payment_date = entry_time
+            end_date = payment_date + timedelta(days=random.randint(5, 20))
+            cursor.execute(
+                "INSERT INTO cars (license_plate, entry_time, time_of_payment, end_of_payment) VALUES (%s, %s, %s, %s)",
+                (plate_number, entry_time, payment_date, end_date)
             )
         else:
-            # неплатени коли
+            # Неплатени коли
             cursor.execute(
-                "INSERT INTO cars (license_plate, time_of_payment, end_of_payment) VALUES (%s, NULL, NULL)",
-                (plate_number,)
+                "INSERT INTO cars (license_plate, entry_time, time_of_payment, end_of_payment) VALUES (%s, %s, NULL, NULL)",
+                (plate_number, entry_time)
             )
 
     conn.commit()

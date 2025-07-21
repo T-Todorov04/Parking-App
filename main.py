@@ -82,6 +82,7 @@ class MainWindow(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(["ID", "Рег. номер", "Дата на плащане", "Край на плащане", "Статус"])
+        self.table.setSortingEnabled(True)
 
         self.left_layout.addWidget(self.search_bar)
         self.left_layout.addWidget(self.table)
